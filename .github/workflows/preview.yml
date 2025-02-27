@@ -1,10 +1,6 @@
 name: Surge PR Preview
 
-on:
-  workflow_run:
-    workflows: [ "Build" ]
-    types:
-      - completed
+on: [disabled]
 
 jobs:
   preview:
