@@ -1,8 +1,6 @@
 name: Surge.sh Preview Teardown
 
-on:
-  pull_request_target:
-    types: [ closed ]
+on: [ disabled ]
 
 jobs:
   preview-teardown:
