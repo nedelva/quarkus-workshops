@@ -58,23 +58,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download default site
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: all-fragments
           path: target/generated-asciidoc
           # take the all- package to be the top-level
       - name: Download Linux site
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: linux-fragments
           path: target/generated-asciidoc/linux
       - name: Download Mac site
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: mac-fragments
           path: target/generated-asciidoc/mac
       - name: Download Windows site
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: windows-fragments
           path: target/generated-asciidoc/windows
