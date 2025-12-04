@@ -1024,9 +1024,67 @@ Invocations to the other microservices are protected using resilience patterns (
 </li>
 </ul>
 </div>
-<div class="imageblock text-center">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-e02bbaf637a94b52982898cd47c02fa9.png" alt="Diagram" width="2865" height="2865">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startuml
+!include style.puml
+
+left to right direction
+
+node "Super Hero UI" as ui {
+    agent "Quarkus" &lt;&lt;frontend&gt;&gt; as uiQuarkus
+}
+
+node "Hero" as hero {
+    agent "Quarkus (reactive)" &lt;&lt;application&gt;&gt; as heroQuarkus
+    database "Postgresql" as heroPostgresql
+    heroQuarkus .up&gt; heroPostgresql
+}
+
+node "Villain" as villain {
+    agent "Quarkus (imperative)" &lt;&lt;application&gt;&gt; as villainQuarkus
+    database "Postgresql" as villainPostgresql
+    villainQuarkus .up&gt; villainPostgresql
+}
+
+node "Fight" as fight {
+    agent "Quarkus" &lt;&lt;application&gt;&gt; as fightQuarkus
+    database "Postgresql" as fightPostgresql
+    fightQuarkus .up&gt; fightPostgresql
+}
+
+package "stats" {
+    node "Statistics" as stat {
+        agent "HTML+JQuery" &lt;&lt;frontend&gt;&gt; as statUI
+        agent "Quarkus (imperative)" &lt;&lt;application&gt;&gt; as statQuarkus
+        statUI .up&gt; statQuarkus
+    }
+
+    node "Statistics UI" as statUi {
+            agent "Browser" &lt;&lt;frontend&gt;&gt; as uiStats
+    }
+}
+
+node "Kafka + Zookeeper" as kafka {
+}
+
+node "Prometheus" as prometheus {
+}
+
+
+uiQuarkus --&gt; fightQuarkus : HTTP
+fightQuarkus --&gt; heroQuarkus : HTTP
+fightQuarkus --&gt; villainQuarkus : HTTP
+
+fightQuarkus ..&gt; kafka : Message
+stat &lt;.. kafka : Message
+statQuarkus ..&gt; uiStats : Web Sockets
+
+prometheus .down.&gt; fight : polling
+prometheus  .&gt; hero : polling
+prometheus .&gt; villain : polling
+@enduml</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1680,9 +1738,18 @@ If your system is missing cURL, the appendix includes <a href="#appendix-install
 <p>In this workshop, you will be developing an application dealing with Super Heroes (and Super-Villains 🦹) as well as Quarkus extensions.
 The code will be separated into two different directories:</p>
 </div>
-<div class="imageblock">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-212f96fa2bf7640c4a678243922e2fe6.png" alt="Diagram" width="437" height="38">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startsalt
+{
+{
+T
+quarkus-workshop-super-heroes
++ super-heroes         | The entire Super Hero application
+}
+}
+@endsalt</pre>
 </div>
 </div>
 <div class="sect3">
@@ -1701,17 +1768,52 @@ This zip file contains <em>some</em> of the code of the workshop, along with ass
 <p>Under the <code>super-heroes</code> directory you will find the entire Super Hero application spread throughout a set of subdirectories, each one containing a microservice or some tooling.
 The final structure will be the following (don&#8217;t worry if you don&#8217;t have all this yet, this is what we&#8217;re aiming towards):</p>
 </div>
-<div class="imageblock">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-fb06ca44d555cf95f35d7c92f3d3c4a9.png" alt="Diagram" width="651" height="164">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startsalt
+{
+{
+T
+quarkus-workshop-super-heroes
++ super-heroes
+++ event-statistics        | UI and application dealing with fight statistics (you will create it)
+++ infrastructure          | All the needed infrastructure (Postgres, Kafka...)
+++ kubernetes              | All the files required to deploy on Kubernetes
+++ load-super-heroes       | CLI tool to load stress on heroes, villains and fights
+++ rest-fights             | REST API allowing super heroes to fight (you will create it)
+++ rest-heroes             | Reactive REST API for CRUD operations on Heroes (you will create it)
+++ rest-narration          | REST API invoking an AI to narrate the fight (you will create it)
+++ rest-villains           | REST API for CRUD operations on Villains (you will create it)
+++ ui-super-heroes         | React application so we can fight visually
+}
+}
+@endsalt</pre>
 </div>
 </div>
 <div class="paragraph">
 <p>Most of these subdirectories are Maven projects and follow the Maven directory structure:</p>
 </div>
-<div class="imageblock">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-00ca08a1d306588270267e5ef81e7d5a.png" alt="Diagram" width="215" height="150">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startsalt
+{
+{
+T
+quarkus-workshop-super-heroes
++  super-heroes
+++ rest-villains
++++ src
+++++  main
++++++  docker
++++++  java
++++++  resources
+++++  test
++++++  java
+}
+}
+@endsalt</pre>
 </div>
 </div>
 </div>
@@ -1765,9 +1867,23 @@ It&#8217;s using the <em>imperative</em> development model.</p>
 <div class="paragraph">
 <p>The <em>fight</em> microservice will use this service.</p>
 </div>
-<div class="imageblock text-center">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-ae227f1604103413b163428e53fd2ef7.png" alt="Diagram" width="300" height="671">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startuml
+!include style.puml
+
+left to right direction
+
+node "Villain" as villain {
+    agent "Quarkus (imperative)" &lt;&lt;application&gt;&gt; as villainQuarkus
+    database "Postgresql" as villainPostgresql
+    villainQuarkus .up&gt; villainPostgresql
+}
+
+REST ()-- villainQuarkus
+
+@enduml</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1892,9 +2008,53 @@ As a start, we only select <code>rest-jackson</code>, which will also import <co
 <div class="paragraph">
 <p>Once you bootstrap the project, you get the following directory structure with a few Java classes and other artifacts :</p>
 </div>
-<div class="imageblock">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-d35c181e82e42e8580f8c3e6dd1c2f98.png" alt="Diagram" width="263" height="527">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startsalt
+{
+{
+T
+super-heroes
++  rest-villains
+++  .mvn
+++  src
++++  main
+++++  docker
++++++  Dockerfile.jvm
++++++  Dockerfile.legacy-jar
++++++  Dockerfile.native
++++++  Dockerfile.native-micro
+++++  java
++++++  io
+++++++  quarkus
++++++++  workshop
+++++++++  superheroes
++++++++++  villain
+++++++++++  VillainResource.java
+++++  resources
++++++  META-INF
+++++++  resources
++++++++  index.html
++++++  application.properties
++++  test
+++++  java
++++++  io
+++++++  quarkus
++++++++  workshop
+++++++++  superheroes
++++++++++  villain
+++++++++++  VillainResourceIT.java
+++++++++++  VillainResourceTest.java
+++  .dockerignore
+++  .gitignore
+++  mvnw
+++  mvnw.cmd
+++  pom.xml
+++  README.md
+}
+}
+@endsalt</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2483,9 +2643,30 @@ Interactions with the database will uses Hibernate ORM and will block until the 
 <p>In this module we will add extra classes to the Villain API project.
 You will end-up with the following directory structure:</p>
 </div>
-<div class="imageblock">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-b3ee510d38dad3af75462173c8341109.png" alt="Diagram" width="336" height="206">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startsalt
+{
+{
+T
+super-heroes
++  rest-villains
+++  src
++++  main
+++++  java
++++++  io
+++++++  quarkus
++++++++  workshop
+++++++++  superheroes
++++++++++  villain
+++++++++++  Villain.java
+++++++++++  VillainResource.java (already exists)
+++++++++++  VillainService.java
+++  pom.xml
+}
+}
+@endsalt</pre>
 </div>
 </div>
 </div>
@@ -3749,9 +3930,31 @@ Quarkus also lets you test it via a user-friendly UI named Swagger UI.</p>
 <p>In this module we will add extra class (<code>VillainApplication</code>) to the Villain API project.
 You will end-up with the following directory structure:</p>
 </div>
-<div class="imageblock">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-41ee2d5b485f1d6914ec23c00a0ce414.png" alt="Diagram" width="343" height="220">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startsalt
+{
+{
+T
+super-heroes
++  rest-villain
+++  src
++++  main
+++++  java
++++++  io
+++++++  quarkus
++++++++  workshop
+++++++++  superheroes
++++++++++  villain
+++++++++++  Villain.java
+++++++++++  VillainApplication.java // We will add it
+++++++++++  VillainResource.java
+++++++++++  VillainService.java
+++  pom.xml
+}
+}
+@endsalt</pre>
 </div>
 </div>
 </div>
@@ -4568,9 +4771,32 @@ In this module, we will display a banner in the logs once the Villain microservi
 <p>In this section, we will add an extra class (<code>VillainApplicationLifeCycle</code>) to handle the Villain API lifecycle.
 You will end up with the following directory structure:</p>
 </div>
-<div class="imageblock">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-c0e71dfef9a8c6bfc3196247f13073cf.png" alt="Diagram" width="365" height="234">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startsalt
+{
+{
+T
+super-heroes
++  rest-villains
+++  src
++++  main
+++++  java
++++++  io
+++++++  quarkus
++++++++  workshop
+++++++++  superheroes
++++++++++  villain
+++++++++++  Villain.java
+++++++++++  VillainApplication.java
+++++++++++  VillainApplicationLifeCycle.java &lt;-- added
+++++++++++  VillainResource.java
+++++++++++  VillainService.java
+++  pom.xml
+}
+}
+@endsalt</pre>
 </div>
 </div>
 </div>
@@ -4758,9 +4984,23 @@ In this chapter, we will see the counterpart of the Villain microservice: the He
 Instead of the imperative approach used for the villains, we will use reactive programming and Hibernate Reactive.
 The logic of the microservice is the same.</p>
 </div>
-<div class="imageblock text-center">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-c5821fb9501d70d4e2c01bbd1c31fce8.png" alt="Diagram" width="300" height="671">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startuml
+!include style.puml
+
+left to right direction
+
+node "Hero" as hero {
+    agent "Quarkus (reactive)" &lt;&lt;application&gt;&gt; as heroQuarkus
+    database "Postgresql" as heroPostgresql
+    heroQuarkus .up&gt; heroPostgresql
+}
+
+REST ()-- heroQuarkus
+
+@enduml</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4870,9 +5110,47 @@ Open a terminal and run the following command under the <code>quarkus-workshop-s
 <div class="paragraph">
 <p>At the end of this chapter, you will end up with the following directory structure:</p>
 </div>
-<div class="imageblock">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-4cd74d521582cd753cc00b2256e446f3.png" alt="Diagram" width="257" height="443">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startsalt
+{
+{
+T
+super-heroes
++  rest-heroes
+++  src
++++  main
+++++  docker
++++++  ...
+++++  java
++++++  io
+++++++  quarkus
++++++++  workshop
+++++++++  superheroes
++++++++++  hero
+++++++++++  Hero.java
+++++++++++  HeroResource.java
+++++  resources
++++++  META-INF
+++++++  resources
++++++++  index.html
++++++  application.properties
++++++  import.sql
++++  test
+++++  java
++++++  io
+++++++  quarkus
++++++++  workshop
+++++++++  superheroes
++++++++++  hero
+++++++++++  HeroResourceTest.java
+++  mvnw
+++  mvnw.cmd
+++  pom.xml
+}
+}
+@endsalt</pre>
 </div>
 </div>
 </div>
@@ -5589,17 +5867,73 @@ We will also add a React front-end, so we can fight graphically.
 But as you can notice in the diagram below, these microservices still not communicate with each other.
 You will have to wait the next chapter for that ;o)</p>
 </div>
-<div class="imageblock text-center">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-ba4cce28188efc82438e95c34a129907.png" alt="Diagram" width="2206" height="1350">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startuml
+!include style.puml
+
+left to right direction
+
+node "Super Hero UI" as ui {
+    agent "Quarkus" &lt;&lt;frontend&gt;&gt; as uiQuarkus
+}
+
+node "Hero" as hero {
+    agent "Quarkus (reactive)" &lt;&lt;application&gt;&gt; as heroQuarkus
+    database "Postgresql" as heroPostgresql
+    heroQuarkus .up&gt; heroPostgresql
+}
+
+node "Villain" as villain {
+    agent "Quarkus (imperative)" &lt;&lt;application&gt;&gt; as villainQuarkus
+    database "Postgresql" as villainPostgresql
+    villainQuarkus .up&gt; villainPostgresql
+}
+
+node "Fight" as fight {
+    agent "Quarkus" &lt;&lt;application&gt;&gt; as fightQuarkus
+    database "Postgresql" as fightPostgresql
+    fightQuarkus .up&gt; fightPostgresql
+}
+
+uiQuarkus -[hidden]-&gt; fightQuarkus : HTTP
+fightQuarkus -[hidden]-&gt; heroQuarkus : HTTP
+fightQuarkus -[hidden]-&gt; villainQuarkus : HTTP
+@enduml</pre>
 </div>
 </div>
 <div class="paragraph">
 <p>Each microservice is developed in its own directory.</p>
 </div>
-<div class="imageblock">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-a4d8621e9b70a4542b084242842a5e14.png" alt="Diagram" width="121" height="262">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startsalt
+{
+{
+T
+super-heroes
++  infrastructure
++  rest-fights
+++  src
++++  main
++++  test
++  rest-heroes
+++  src
++++  main
++++  test
++  rest-villains
+++  src
++++  main
++++  test
++  ui-super-heroes
+++  src
++++  app
++++  main
+}
+}
+@endsalt</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -5725,9 +6059,52 @@ You can delete the Java classes <code>MyReactiveMessagingApplication</code> and 
 <div class="paragraph">
 <p>At the end you should have the following directory structure:</p>
 </div>
-<div class="imageblock">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-d24aa1313b8c9a01356a21fa17a4a21c.png" alt="Diagram" width="258" height="513">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startsalt
+{
+{
+T
+super-heroes
++  rest-fights
+++  src
++++  main
+++++  docker
++++++  ...
+++++  java
++++++  io
+++++++  quarkus
++++++++  workshop
+++++++++  superheroes
++++++++++  fight
+++++++++++  Fight.java
+++++++++++  FightResource.java
+++++++++++  FightService.java
+++++++++++  Fighters.java
++++++++++  client
+++++++++++  Hero.java
+++++++++++  Villain.java
+++++  resources
++++++  META-INF
+++++++  resources
++++++++  index.html
++++++  application.properties
++++++  import.sql
++++  test
+++++  java
++++++  io
+++++++  quarkus
++++++++  workshop
+++++++++  superheroes
++++++++++  fight
+++++++++++  FightResourceTest.java
+++  mvnw
+++  mvnw.cmd
+++  pom.xml
+}
+}
+@endsalt</pre>
 </div>
 </div>
 </div>
@@ -6602,9 +6979,29 @@ quarkus.http.cors.origins=/.*/</code></pre>
 <p>But, even with this, the UI is still not working.
 The CORS errors are gone, so that&#8217;s a good step, but we forgot something else:</p>
 </div>
-<div class="imageblock text-center">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-f44d76d59eea57d7c7c2debf5e432cb3.png" alt="Diagram" width="2151" height="749">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startuml
+skinparam dpi 300
+skinparam useBetaStyle true
+skinparam handwritten true
+
+skinparam participant {
+    backgroundColor&lt;&lt;frontend&gt;&gt; #D2B4DE
+    backgroundColor&lt;&lt;application&gt;&gt; #FAE5D3
+}
+
+participant UI as UI &lt;&lt;frontend&gt;&gt;
+participant "Fight Microservice" as Fight &lt;&lt;application&gt;&gt;
+participant "Villain Microservice" as Villain &lt;&lt;application&gt;&gt;
+participant "Hero Microservice" as Hero &lt;&lt;application&gt;&gt;
+
+UI -&gt; Fight: GET /api/fights/randomfighters
+Fight x--&gt; Hero: GET /api/hero/randomhero
+Fight x--&gt; Villain: GET /api/hero/randomvillain
+Fight -&gt;x UI : null
+@enduml</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -6625,9 +7022,40 @@ Let&#8217;s move to the next session to see how we can implement this method.</p
 In the following sections you will develop this invocation thanks to the MicroProfile REST Client.
 We will also deal with fault tolerance thanks to timeouts and circuit breaker.</p>
 </div>
-<div class="imageblock text-center">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-f383c38e127f13fbdd6cc3ba98a08354.png" alt="Diagram" width="2206" height="1350">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startuml
+!include style.puml
+
+left to right direction
+
+node "Super Hero UI" as ui {
+    agent "Quarkus" &lt;&lt;frontend&gt;&gt; as uiQuarkus
+}
+
+node "Hero" as hero {
+    agent "Quarkus (reactive)" &lt;&lt;application&gt;&gt; as heroQuarkus
+    database "Postgresql" as heroPostgresql
+    heroQuarkus .up&gt; heroPostgresql
+}
+
+node "Villain" as villain {
+    agent "Quarkus (imperative)" &lt;&lt;application&gt;&gt; as villainQuarkus
+    database "Postgresql" as villainPostgresql
+    villainQuarkus .up&gt; villainPostgresql
+}
+
+node "Fight" as fight {
+    agent "Quarkus" &lt;&lt;application&gt;&gt; as fightQuarkus
+    database "Postgresql" as fightPostgresql
+    fightQuarkus .up&gt; fightPostgresql
+}
+
+uiQuarkus --&gt; fightQuarkus : HTTP
+fightQuarkus --&gt; heroQuarkus : HTTP
+fightQuarkus --&gt; villainQuarkus : HTTP
+@enduml</pre>
 </div>
 </div>
 <div class="sect2">
@@ -6640,9 +7068,55 @@ We will also deal with fault tolerance thanks to timeouts and circuit breaker.</
 <div class="paragraph">
 <p>Remember the structure of the Fight microservice:</p>
 </div>
-<div class="imageblock">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-2cac30cbb3df97fa722b8e506f58d4ed.png" alt="Diagram" width="259" height="555">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startsalt
+{
+{
+T
+.
++ src
+++ main
++++ docker
++++ java
+++++ io
++++++ quarkus
+++++++ workshop
++++++++ superheroes
+++++++++ fight
++++++++++ Fight.java
++++++++++ FightResource.java
++++++++++ FightService.java
++++++++++ Fighters.java
++++++++++ client
++++++++++++ Hero.java
++++++++++++ HeroProxy.java
++++++++++++ Villain.java
++++++++++++ VillainProxy.java
++++ resources
+++++ META-INF
++++++ resources
+++++++ index.html
++++++ application.properties
++++++ import.sql
+++ test
++++ java
+++++ io
++++++ quarkus
+++++++ workshop
+++++++++ superheroes
++++++++++ fight
+++++++++++ FightResourceTest.java
++++++++++ client
++++++++++++ DefaultTestHero.java
++++++++++++ DefaultTestVillain.java
++++++++++++ MockHeroProxy.java
++++++++++++ MockVillainProxy.java
++ pom.xml
+}
+}
+@endsalt</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -9016,9 +9490,38 @@ Without the full context, the best that can be achieved is partial and limited g
 <div class="paragraph">
 <p>As stated above, an extension is divided into two parts, called <code>deployment</code> (augmentation) and <code>runtime</code>.</p>
 </div>
-<div class="imageblock text-center">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-4e825d66545eadc52b91865807198517.png" alt="Diagram" width="2943" height="528">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startuml
+!include style.puml
+
+left to right direction
+
+package "version-deployment" as deployment {
+    class VersionConfig {
+        boolean enabled
+    }
+
+    class VersionExtensionProcessor {
+        @BuildStep @Record recordVersion()
+    }
+}
+
+package "version" as runtime {
+    class VersionRecorder {
+        print(String version)
+    }
+
+}
+
+
+
+deployment -up-&gt; runtime : Maven dependency
+VersionExtensionProcessor &lt;.up. VersionConfig : Mapped from configuration
+VersionExtensionProcessor ..&gt; VersionRecorder : Use
+
+@enduml</pre>
 </div>
 </div>
 <div class="exampleblock cta">
@@ -9057,9 +9560,46 @@ Without the full context, the best that can be achieved is partial and limited g
 <div class="paragraph">
 <p>The final structure of the extension developed in this section is the following:</p>
 </div>
-<div class="imageblock">
+<div class="listingblock">
 <div class="content">
-<img src="../../images/diag-plantuml-md5-230c605b98a1015e5e299dd60751d48d.png" alt="Diagram" width="322" height="429">
+<pre>Failed to generate image: Could not load PlantUML. Either require 'asciidoctor-diagram-plantuml' or specify the location of the PlantUML JAR(s) using the 'DIAGRAM_PLANTUML_CLASSPATH' environment variable. Alternatively a PlantUML binary can be provided (plantuml-native in $PATH).
+@startsalt
+{
+{
+T
+extension-version
++  deployment
+++  src
++++  main
+++++  java
++++++  io
+++++++  quarkus
++++++++  workshop
+++++++++  superheroes
++++++++++  version
+++++++++++  deployment
++++++++++++  VersionConfig.java
++++++++++++  ExtensionVersionProcessor.java
+++  pom.xml
++  runtime
+++  src
++++  main
+++++  java
++++++  io
+++++++  quarkus
++++++++  workshop
+++++++++  superheroes
++++++++++  version
+++++++++++  runtime
++++++++++++  VersionRecorder.java
+++++  resources
++++++  META-INF
+++++++  quarkus-extension.yaml
+++  pom.xml
++  pom.xml
+}
+}
+@endsalt</pre>
 </div>
 </div>
 <div class="paragraph">
