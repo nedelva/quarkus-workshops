@@ -13,6 +13,8 @@ jobs:
     concurrency: zip-generation
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - name: Install JDK 17
         uses: actions/setup-java@v6
         with:
@@ -28,6 +30,8 @@ jobs:
     concurrency: zip-generation
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - name: Install JDK 17
         uses: actions/setup-java@v6
         with:
@@ -42,4 +46,5 @@ jobs:
           git config --global user.name 'Github Actions'
           git config --global user.email 'ci-action@users.noreply.github.com'
           git commit -am "Automated zip generation"
+          git pull --rebase
           git push
