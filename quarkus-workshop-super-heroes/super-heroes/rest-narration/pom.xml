@@ -57,14 +57,17 @@
     <dependency>
       <groupId>com.microsoft.semantic-kernel</groupId>
       <artifactId>semantickernel-core</artifactId>
+      <version>${semantic-kernel.version}</version>
     </dependency>
     <dependency>
       <groupId>com.microsoft.semantic-kernel</groupId>
       <artifactId>semantickernel-settings-loader</artifactId>
+      <version>${semantic-kernel.version}</version>
     </dependency>
     <dependency>
       <groupId>com.microsoft.semantic-kernel</groupId>
       <artifactId>semantickernel-connectors-ai-openai</artifactId>
+      <version>${semantic-kernel.version}</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
