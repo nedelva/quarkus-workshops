@@ -19,7 +19,7 @@ class ExtensionVersionProcessor {
 
     @BuildStep
     @Record(ExecutionTime.RUNTIME_INIT)
-    void recordVersion(ApplicationInfoBuildItem app, VersionConfig versionConfig, VersionRecorder recorder) {
-        recorder.printVersion(versionConfig, app.getVersion());
+    void recordVersion(ApplicationInfoBuildItem app, VersionRecorder recorder) {
+        recorder.printVersion(app.getVersion());
     }
 }
